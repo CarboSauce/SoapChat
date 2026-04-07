@@ -1,0 +1,6 @@
+@SoapChat.Api_HostAddress = http://localhost:5217
+
+GET {{SoapChat.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

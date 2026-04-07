@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="backend/SoapChat.Api/SoapChat.Api.csproj" />
+  <Project Path="backend/SoapChat.AppHost/SoapChat.AppHost.csproj" />
+  <Project Path="backend/SoapChat.DbServer/SoapChat.DbServer.csproj" />
+  <Project Path="backend/SoapChat.ServiceDefaults/SoapChat.ServiceDefaults.csproj" />
+</Solution>
