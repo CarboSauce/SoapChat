@@ -1,35 +1,30 @@
-var builder = WebApplication.CreateBuilder(args);
+using CoreWCF.Configuration;
+using CoreWCF.Description;
+using SoapChat.DbServer;
+using SoapChat.DbServer.Features;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
+ConfigureServices(builder.Services);
+static void ConfigureServices(IServiceCollection services)
+{
+    services.AddServiceModelMetadata();
+    services.AddServiceModelServices();
+    services.AddSingleton<
+        IServiceBehavior,
+        UseRequestHeadersForMetadataAddressBehavior
+    >();
+
+    services.AddScoped<LiteDbContext, LiteDbContext>();
+}
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.UseServiceModel(builder =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering",
-    "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-            new WeatherForecast
-            (
-                DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                Random.Shared.Next(-20, 55),
-                summaries[Random.Shared.Next(summaries.Length)]
-            ))
-       .ToArray();
-    return forecast;
+    app.AddSoapService<UserService, IUserService>(builder, "User.asmx");
 });
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

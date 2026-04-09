@@ -8,4 +8,9 @@
         <UserSecretsId>789fb37a-fa49-4e10-85f1-b13932d5df5a</UserSecretsId>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SoapChat.Api\SoapChat.Api.csproj" />
+      <ProjectReference Include="..\SoapChat.DbServer\SoapChat.DbServer.csproj" />
+    </ItemGroup>
+
 </Project>
