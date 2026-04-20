@@ -25,6 +25,14 @@ app.UseHttpsRedirection();
 app.UseServiceModel(builder =>
 {
     app.AddSoapService<UserService, IUserService>(builder, "User.asmx");
+    app.AddSoapService<MessageService, IMessageService>(
+        builder,
+        "Message.asmx"
+    );
+    app.AddSoapService<ChatGroupService, IChatGroupService>(
+        builder,
+        "ChatGroup.asmx"
+    );
 });
 
-app.Run();
+await app.RunAsync();

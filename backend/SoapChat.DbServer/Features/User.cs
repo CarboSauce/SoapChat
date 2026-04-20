@@ -4,13 +4,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace SoapChat.DbServer.Features;
 
-public class User
-{
-    public ObjectId UserId { get; set; }
-    public string Name { get; set; }
-    public string PasswordHash { get; set; }
-}
-
 [ServiceContract]
 public interface IUserService
 {
@@ -34,7 +27,7 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
 
     public User CreateUser(string name, string password)
     {
-        var col = context.GetCollection<User>("users");
+        var col = context.GetCollection<User>(SchemaNames.Users);
         col.EnsureIndex(x => x.Name, true);
         var user = new User { Name = name };
         user.PasswordHash = hasher.HashPassword(user, password);
@@ -47,12 +40,12 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
     public User GetUser(string id)
     {
         var userId = new ObjectId(id);
-        return context.GetCollection<User>("users").FindById(userId);
+        return context.GetCollection<User>(SchemaNames.Users).FindById(userId);
     }
 
     public User[] SearchUsers(string nameSearch)
     {
-        var col = context.GetCollection<User>("users");
+        var col = context.GetCollection<User>(SchemaNames.Users);
         var users = col.Find(x =>
                 x.Name.Contains(nameSearch, StringComparison.OrdinalIgnoreCase)
             )
@@ -63,7 +56,7 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
 
     public User ValidateCredentials(string username, string password)
     {
-        var col = context.GetCollection<User>("users");
+        var col = context.GetCollection<User>(SchemaNames.Users);
         col.EnsureIndex(x => x.Name, true);
         var user = col.FindOne(x => x.Name == username);
         var result = hasher.VerifyHashedPassword(
