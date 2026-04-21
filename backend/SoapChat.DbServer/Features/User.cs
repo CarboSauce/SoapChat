@@ -18,6 +18,12 @@ public interface IUserService
 
     [OperationContract]
     User ValidateCredentials(string username, string password);
+
+    [OperationContract]
+    void UploadAvatar(string userId, byte[] data);
+
+    [OperationContract]
+    byte[] GetAvatar(string userId);
 }
 
 public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
@@ -46,10 +52,8 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
     public User[] SearchUsers(string nameSearch)
     {
         var col = context.GetCollection<User>(SchemaNames.Users);
-        var users = col.Find(x =>
-                x.Name.Contains(nameSearch, StringComparison.OrdinalIgnoreCase)
-            )
-            .ToArray();
+        nameSearch = nameSearch.ToUpper();
+        var users = col.Find(x => x.Name.ToUpper() == nameSearch).ToArray();
 
         return users;
     }
@@ -67,5 +71,36 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
         return result == PasswordVerificationResult.Success
             ? user
             : throw new UnauthorizedAccessException("Credentials invalid");
+    }
+
+    public void UploadAvatar(string userId, byte[] data)
+    {
+        var col = context.GetCollection<User>(SchemaNames.Users);
+        var uid = new ObjectId(userId);
+        var user = col.FindById(uid);
+        if (user == null)
+            throw new KeyNotFoundException("User not found");
+
+        var fs = context.FileStorage;
+        using var stream = new MemoryStream(data);
+        fs.Upload(userId, userId, stream);
+    }
+
+    public byte[] GetAvatar(string userId)
+    {
+        var col = context.GetCollection<User>(SchemaNames.Users);
+        var uid = new ObjectId(userId);
+        var user = col.FindById(uid);
+        if (user == null)
+            throw new KeyNotFoundException("User not found");
+
+        var fs = context.FileStorage;
+        if (!fs.Exists(userId))
+            throw new FileNotFoundException("Avatar not found");
+
+        using var stream = fs.OpenRead(userId);
+        using var ms = new MemoryStream();
+        stream.CopyTo(ms);
+        return ms.ToArray();
     }
 }
