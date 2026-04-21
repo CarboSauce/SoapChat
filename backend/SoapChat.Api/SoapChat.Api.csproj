@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="HotChocolate" Version="15.1.14" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.14" />
+    <PackageReference Include="HotChocolate.Subscriptions" Version="15.1.14" />
+    <PackageReference Include="HotChocolate.Subscriptions.InMemory" Version="15.1.14" />
+    <PackageReference Include="HotChocolate.Types.Analyzers" Version="15.1.14" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
   </ItemGroup>
   <ItemGroup>
