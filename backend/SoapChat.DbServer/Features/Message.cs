@@ -10,23 +10,30 @@ using LiteDB;
 public interface IMessageService
 {
     [OperationContract]
-    ChatMessage CreateMessage(string groupId, string senderId, string text);
+    ChatMessageResponse CreateMessage(
+        string groupId,
+        string senderId,
+        string text
+    );
 
     [OperationContract]
-    ChatMessage GetMessage(string id);
+    ChatMessageResponse GetMessage(string id);
 
     [OperationContract]
-    ChatMessage[] GetMessages(string groupId, int skip, int limit);
+    ChatMessageResponse[] GetMessages(string groupId, int skip, int limit);
 
     [OperationContract]
-    ChatMessage[] GetNewerMessages(string groupId, string lastMessageId);
+    ChatMessageResponse[] GetNewerMessages(
+        string groupId,
+        string lastMessageId
+    );
 }
 
 public class MessageService(LiteDbContext dbContext) : IMessageService
 {
     private readonly LiteDatabase context = dbContext.Context;
 
-    public ChatMessage CreateMessage(
+    public ChatMessageResponse CreateMessage(
         string groupId,
         string senderId,
         string text
@@ -57,18 +64,24 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
         };
 
         messages.Insert(msg);
-        return msg;
+        return msg.ToResponse();
     }
 
-    public ChatMessage GetMessage(string id)
+    public ChatMessageResponse GetMessage(string id)
     {
         var mid = new ObjectId(id);
-        return context
+        var message = context
             .GetCollection<ChatMessage>(SchemaNames.Messages)
             .FindById(mid);
+        return message?.ToResponse()
+            ?? throw new KeyNotFoundException("Message not found");
     }
 
-    public ChatMessage[] GetMessages(string groupId, int skip, int limit)
+    public ChatMessageResponse[] GetMessages(
+        string groupId,
+        int skip,
+        int limit
+    )
     {
         var gid = new ObjectId(groupId);
         var col = context.GetCollection<ChatMessage>(SchemaNames.Messages);
@@ -77,10 +90,13 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
             .Skip(skip)
             .Take(limit)
             .ToArray();
-        return query;
+        return query.Select(x => x.ToResponse()).ToArray();
     }
 
-    public ChatMessage[] GetNewerMessages(string groupId, string lastMessageId)
+    public ChatMessageResponse[] GetNewerMessages(
+        string groupId,
+        string lastMessageId
+    )
     {
         var gid = new ObjectId(groupId);
         var col = context.GetCollection<ChatMessage>(SchemaNames.Messages);
@@ -105,6 +121,6 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
             .OrderBy(x => x.SentAt)
             .ToArray();
 
-        return msgs;
+        return msgs.Select(x => x.ToResponse()).ToArray();
     }
 }

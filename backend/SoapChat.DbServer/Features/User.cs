@@ -8,16 +8,16 @@ namespace SoapChat.DbServer.Features;
 public interface IUserService
 {
     [OperationContract]
-    User CreateUser(string name, string password);
+    UserResponse CreateUser(string name, string password);
 
     [OperationContract]
-    User GetUser(string id);
+    UserResponse GetUser(string id);
 
     [OperationContract]
-    User[] SearchUsers(string nameSearch);
+    UserResponse[] SearchUsers(string nameSearch);
 
     [OperationContract]
-    User ValidateCredentials(string username, string password);
+    UserResponse ValidateCredentials(string username, string password);
 
     [OperationContract]
     void UploadAvatar(string userId, byte[] data);
@@ -31,7 +31,7 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
 {
     private readonly LiteDatabase context = dbContext.Context;
 
-    public User CreateUser(string name, string password)
+    public UserResponse CreateUser(string name, string password)
     {
         var col = context.GetCollection<User>(SchemaNames.Users);
         col.EnsureIndex(x => x.Name, true);
@@ -40,25 +40,29 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
 
         col.Insert(user);
 
-        return user;
+        return user.ToResponse();
     }
 
-    public User GetUser(string id)
+    public UserResponse GetUser(string id)
     {
         var userId = new ObjectId(id);
-        return context.GetCollection<User>(SchemaNames.Users).FindById(userId);
+        var user = context
+            .GetCollection<User>(SchemaNames.Users)
+            .FindById(userId);
+        return user?.ToResponse()
+            ?? throw new KeyNotFoundException("User not found");
     }
 
-    public User[] SearchUsers(string nameSearch)
+    public UserResponse[] SearchUsers(string nameSearch)
     {
         var col = context.GetCollection<User>(SchemaNames.Users);
         nameSearch = nameSearch.ToUpper();
         var users = col.Find(x => x.Name.ToUpper() == nameSearch).ToArray();
 
-        return users;
+        return users.Select(x => x.ToResponse()).ToArray();
     }
 
-    public User ValidateCredentials(string username, string password)
+    public UserResponse ValidateCredentials(string username, string password)
     {
         var col = context.GetCollection<User>(SchemaNames.Users);
         col.EnsureIndex(x => x.Name, true);
@@ -69,7 +73,7 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
             password
         );
         return result == PasswordVerificationResult.Success
-            ? user
+            ? user.ToResponse()
             : throw new UnauthorizedAccessException("Credentials invalid");
     }
 

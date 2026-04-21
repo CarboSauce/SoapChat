@@ -10,29 +10,28 @@ using LiteDB;
 public interface IChatGroupService
 {
     [OperationContract]
-    ChatGroup CreateGroup(string name);
+    ChatGroupResponse CreateGroup(string name);
 
     [OperationContract]
-    ChatGroup GetGroup(string id);
+    ChatGroupResponse GetGroup(string id);
 
     [OperationContract]
-    ChatGroup[] SearchGroupsByMember(string userId);
+    ChatGroupResponse[] SearchGroupsByMember(string userId);
 
     [OperationContract]
-    ChatGroup AddMember(string groupId, string userId);
+    ChatGroupResponse AddMember(string groupId, string userId);
 
     [OperationContract]
-    ChatGroup RemoveMember(string groupId, string userId);
+    ChatGroupResponse RemoveMember(string groupId, string userId);
 }
 
 public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
 {
     private readonly LiteDatabase context = dbContext.Context;
 
-    public ChatGroup CreateGroup(string name)
+    public ChatGroupResponse CreateGroup(string name)
     {
         var groups = context.GetCollection<ChatGroup>(SchemaNames.Groups);
-        var users = context.GetCollection<User>(SchemaNames.Users);
 
         groups.EnsureIndex(x => x.Name);
         groups.EnsureIndex(x => x.Members);
@@ -40,26 +39,28 @@ public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
         var group = new ChatGroup { Name = name };
 
         groups.Insert(group);
-        return group;
+        return group.ToResponse();
     }
 
-    public ChatGroup GetGroup(string id)
+    public ChatGroupResponse GetGroup(string id)
     {
         var gid = new ObjectId(id);
-        return context
+        var group = context
             .GetCollection<ChatGroup>(SchemaNames.Groups)
             .FindById(gid);
+        return group?.ToResponse()
+            ?? throw new KeyNotFoundException("Group not found");
     }
 
-    public ChatGroup[] SearchGroupsByMember(string userId)
+    public ChatGroupResponse[] SearchGroupsByMember(string userId)
     {
         var uid = new ObjectId(userId);
         var col = context.GetCollection<ChatGroup>(SchemaNames.Groups);
         var groups = col.Find(x => x.Members.Any(m => m.Id == uid)).ToArray();
-        return groups;
+        return groups.Select(x => x.ToResponse()).ToArray();
     }
 
-    public ChatGroup AddMember(string groupId, string userId)
+    public ChatGroupResponse AddMember(string groupId, string userId)
     {
         var gid = new ObjectId(groupId);
         var uid = new ObjectId(userId);
@@ -75,16 +76,16 @@ public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
 
         if (group.Members.Any(m => m.Id == uid))
         {
-            return group;
+            return group.ToResponse();
         }
 
         group.Members.Add(user);
         groups.Update(group);
 
-        return group;
+        return group.ToResponse();
     }
 
-    public ChatGroup RemoveMember(string groupId, string userId)
+    public ChatGroupResponse RemoveMember(string groupId, string userId)
     {
         var gid = new ObjectId(groupId);
         var uid = new ObjectId(userId);
@@ -97,6 +98,6 @@ public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
         if (removed)
             groups.Update(group);
 
-        return group;
+        return group.ToResponse();
     }
 }
