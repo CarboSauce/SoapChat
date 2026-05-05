@@ -25,8 +25,22 @@ var issuer =
 var audience =
     jwtSettings["Audience"]
     ?? throw new InvalidOperationException("JWT Audience not configured");
+var corsUrl =
+    builder.Configuration["CorsUrl"]
+    ?? throw new InvalidOperationException("CORS URL not configured");
 var expirationMinutesStr = jwtSettings["ExpirationMinutes"] ?? "1440";
 var key = Encoding.ASCII.GetBytes(secretKey);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy
+            .WithOrigins($"http://{corsUrl}", $"https://{corsUrl}")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+    );
+});
 
 builder
     .Services.AddAuthentication("Bearer")
@@ -104,6 +118,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseCors();
 
 app.Use(
     async (context, next) =>
