@@ -1,5 +1,5 @@
 export const getApiUrl = (): string => {
-  const stored = sessionStorage.getItem('GRAPHQL_ENDPOINT')
+  const stored = localStorage.getItem('GRAPHQL_ENDPOINT')
   if (stored) return stored
 
   if (import.meta.env.VITE_GRAPHQL_ENDPOINT) {
@@ -10,5 +10,5 @@ export const getApiUrl = (): string => {
 }
 
 export const setApiUrl = (url: string): void => {
-  sessionStorage.setItem('GRAPHQL_ENDPOINT', url)
+  localStorage.setItem('GRAPHQL_ENDPOINT', url)
 }

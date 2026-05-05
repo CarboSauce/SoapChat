@@ -1,9 +1,8 @@
 import { ApolloClient, InMemoryCache, HttpLink, ApolloLink, concat } from '@apollo/client'
-import { getApiUrl } from './config'
 
-const createApolloClient = (token: string | null) => {
+const createApolloClient = (token: string | null, uri: string) => {
   const httpLink = new HttpLink({
-    uri: getApiUrl()
+    uri
   })
 
   const authLink = new ApolloLink((operation, forward) => {

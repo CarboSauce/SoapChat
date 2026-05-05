@@ -6,7 +6,7 @@ import { setApiUrl } from '../config'
 import '../styles/auth.css'
 
 interface AuthPageProps {
-  onApiUrlChange: () => void
+  onApiUrlChange: (newUrl: string) => void
 }
 
 export default function AuthPage({ onApiUrlChange }: AuthPageProps) {
@@ -49,7 +49,7 @@ export default function AuthPage({ onApiUrlChange }: AuthPageProps) {
     }
 
     setApiUrl(apiUrl)
-    onApiUrlChange()
+    onApiUrlChange(apiUrl)
 
     setTimeout(() => {
       if (isLogin) {

@@ -19,7 +19,7 @@ static void ConfigureServices(IServiceCollection services)
     //     UseRequestHeadersForMetadataAddressBehavior
     // >();
 
-    services.AddScoped<LiteDbContext, LiteDbContext>();
+    services.AddSingleton<LiteDbContext, LiteDbContext>();
     services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
     services.AddScoped<UserService>();
     services.AddScoped<MessageService>();
