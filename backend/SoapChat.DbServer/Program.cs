@@ -1,5 +1,6 @@
 using CoreWCF.Configuration;
 using CoreWCF.Description;
+using Microsoft.AspNetCore.Identity;
 using SoapChat.DbServer;
 using SoapChat.DbServer.Features;
 
@@ -10,18 +11,24 @@ static void ConfigureServices(IServiceCollection services)
 {
     services.AddServiceModelMetadata();
     services.AddServiceModelServices();
-    services.AddSingleton<
-        IServiceBehavior,
-        UseRequestHeadersForMetadataAddressBehavior
-    >();
+    services.AddSingleton<IServiceBehavior>(
+        new ServiceDebugBehavior { IncludeExceptionDetailInFaults = true }
+    );
+    // services.AddSingleton<
+    //     IServiceBehavior,
+    //     UseRequestHeadersForMetadataAddressBehavior
+    // >();
 
     services.AddScoped<LiteDbContext, LiteDbContext>();
+    services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+    services.AddScoped<UserService>();
+    services.AddScoped<MessageService>();
+    services.AddScoped<ChatGroupService>();
 }
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-
 app.UseServiceModel(builder =>
 {
     app.AddSoapService<UserService, IUserService>(builder, "User.asmx");

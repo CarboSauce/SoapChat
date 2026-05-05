@@ -72,6 +72,8 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
         var mid = new ObjectId(id);
         var message = context
             .GetCollection<ChatMessage>(SchemaNames.Messages)
+            .Include(u => u.Sender)
+            .Include(u => u.Group)
             .FindById(mid);
         return message?.ToResponse()
             ?? throw new KeyNotFoundException("Message not found");
@@ -85,7 +87,9 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
     {
         var gid = new ObjectId(groupId);
         var col = context.GetCollection<ChatMessage>(SchemaNames.Messages);
-        var query = col.Find(x => x.Group.Id == gid)
+        var query = col.Include(u => u.Sender)
+            .Include(u => u.Group)
+            .Find(x => x.Group.Id == gid)
             .OrderBy(x => x.SentAt)
             .Skip(skip)
             .Take(limit)
@@ -113,7 +117,9 @@ public class MessageService(LiteDbContext dbContext) : IMessageService
 
         // find messages in the same group with SentAt greater than the last message SentAt
         // or with the same SentAt but higher id to handle identical timestamps
-        var msgs = col.Find(x => x.Group.Id == gid)
+        var msgs = col.Include(u => u.Sender)
+            .Include(u => u.Group)
+            .Find(x => x.Group.Id == gid)
             .Where(x =>
                 x.SentAt > lastMsg.SentAt
                 || (x.SentAt == lastMsg.SentAt && x.Id > lastId)

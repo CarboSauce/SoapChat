@@ -67,6 +67,10 @@ public class UserService(LiteDbContext dbContext, IPasswordHasher<User> hasher)
         var col = context.GetCollection<User>(SchemaNames.Users);
         col.EnsureIndex(x => x.Name, true);
         var user = col.FindOne(x => x.Name == username);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("Credentials invalid");
+
         var result = hasher.VerifyHashedPassword(
             user,
             user.PasswordHash,

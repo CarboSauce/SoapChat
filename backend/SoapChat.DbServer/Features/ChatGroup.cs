@@ -47,6 +47,7 @@ public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
         var gid = new ObjectId(id);
         var group = context
             .GetCollection<ChatGroup>(SchemaNames.Groups)
+            .Include(u => u.Members)
             .FindById(gid);
         return group?.ToResponse()
             ?? throw new KeyNotFoundException("Group not found");
@@ -56,7 +57,10 @@ public class ChatGroupService(LiteDbContext dbContext) : IChatGroupService
     {
         var uid = new ObjectId(userId);
         var col = context.GetCollection<ChatGroup>(SchemaNames.Groups);
-        var groups = col.Find(x => x.Members.Any(m => m.Id == uid)).ToArray();
+        var groups = col.Include(u => u.Members)
+            .FindAll()
+            .Where(x => x.Members.Any(m => m.Id == uid))
+            .ToArray();
         return groups.Select(x => x.ToResponse()).ToArray();
     }
 

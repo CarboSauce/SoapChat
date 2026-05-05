@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace SoapChat.DbServer;
 
-public class LiteDbContext
+public class LiteDbContext : IDisposable
 {
     public LiteDatabase Context { get; }
 
@@ -20,5 +20,10 @@ public class LiteDbContext
                 ex
             );
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }
