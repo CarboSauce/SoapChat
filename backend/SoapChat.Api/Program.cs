@@ -79,7 +79,8 @@ builder.Services.AddSingleton(
     )
 );
 
-builder.Services.AddGraphQLServer().AddApiTypes();
+builder.Services.AddGraphQLServer().AddType<UploadType>().AddApiTypes();
+builder.Services.AddControllers();
 
 builder.Services.AddScoped<ChatGroupServiceClient>(provider =>
 {
@@ -142,6 +143,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGraphQL();
-app.UseHttpsRedirection();
+app.MapControllers();
 
 await app.RunAsync();

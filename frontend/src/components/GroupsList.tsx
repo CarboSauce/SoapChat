@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_USER_GROUPS, CREATE_GROUP, SEARCH_USERS, ADD_GROUP_MEMBER } from '../graphql'
 import { useAuth } from '../context/AuthContext'
+import Avatar from './Avatar'
 import '../styles/groups.css'
 
 interface GroupsListProps {
@@ -99,7 +100,14 @@ export default function GroupsList({ selectedGroupId, onSelectGroup }: GroupsLis
             onClick={() => onSelectGroup(group.id)}
           >
             <div className="group-name">{group.name}</div>
-            <div className="group-members">{group.members.length} members</div>
+            <div className="group-members-avatars">
+              {group.members.slice(0, 3).map((member: any) => (
+                <Avatar key={member.id} userId={member.id} size="small" />
+              ))}
+              {group.members.length > 3 && (
+                <span className="members-count">+{group.members.length - 3}</span>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -158,7 +166,10 @@ export default function GroupsList({ selectedGroupId, onSelectGroup }: GroupsLis
               <div className="search-results">
                 {searchData.searchUsers.map((u: any) => (
                   <div key={u.id} className="search-result">
-                    <span>{u.username}</span>
+                    <div className="search-result-user">
+                      <Avatar userId={u.id} size="small" />
+                      <span>{u.username}</span>
+                    </div>
                     <button
                       onClick={() => handleAddMember(u.id)}
                       className="btn btn-small"

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_MESSAGES, CREATE_MESSAGE } from '../graphql'
+import Avatar from './Avatar'
 import '../styles/messages.css'
 
 interface ChatViewProps {
@@ -80,13 +81,18 @@ export default function ChatView({ groupId }: ChatViewProps) {
 
         {messages.map((msg: any, index: number) => (
           <div key={msg.id || index} className="message">
-            <div className="message-header">
-              <span className="message-sender">{msg.sender?.name || 'Unknown'}</span>
-              <span className="message-time">
-                {new Date(msg.sentAt).toLocaleTimeString()}
-              </span>
+            <div className="message-content">
+              <Avatar userId={msg.sender?.id || ''} size="small" />
+              <div className="message-body">
+                <div className="message-header">
+                  <span className="message-sender">{msg.sender?.name || 'Unknown'}</span>
+                  <span className="message-time">
+                    {new Date(msg.sentAt).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="message-text">{msg.text}</div>
+              </div>
             </div>
-            <div className="message-text">{msg.text}</div>
           </div>
         ))}
 

@@ -1,5 +1,6 @@
 import { ApolloProvider } from '@apollo/client'
 import { useAuth, AuthProvider } from './context/AuthContext'
+import { ApiProvider } from './context/ApiContext'
 import { useMemo, useState, useEffect } from 'react'
 import createApolloClient from './apollo'
 import { getApiUrl } from './config'
@@ -23,9 +24,11 @@ function AppContent() {
   }
 
   return (
-    <ApolloProvider client={client}>
-      {token ? <ChatPage /> : <AuthPage onApiUrlChange={(newUrl) => setApiUrl(newUrl)} />}
-    </ApolloProvider>
+    <ApiProvider apiUrl={apiUrl}>
+      <ApolloProvider client={client}>
+        {token ? <ChatPage /> : <AuthPage onApiUrlChange={(newUrl) => setApiUrl(newUrl)} />}
+      </ApolloProvider>
+    </ApiProvider>
   )
 }
 

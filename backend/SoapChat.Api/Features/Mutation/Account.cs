@@ -1,5 +1,8 @@
-﻿using System.ServiceModel;
+﻿using System.IO;
+using System.Security.Claims;
+using System.ServiceModel;
 using HotChocolate;
+using HotChocolate.AspNetCore;
 using SoapChat.Api.ChatGroupService;
 using SoapChat.Api.Features.Models;
 using SoapChat.Api.MessageService;

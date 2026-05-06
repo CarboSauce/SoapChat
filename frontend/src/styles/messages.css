@@ -10,14 +10,22 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 .message {
-  background: #f5f5f5;
-  padding: 12px 15px;
-  border-radius: 6px;
+  display: flex;
   margin-bottom: 5px;
+}
+
+.message-content {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.message-body {
+  flex: 1;
 }
 
 .message-header {
@@ -38,7 +46,10 @@
 }
 
 .message-text {
+  background: #f5f5f5;
   color: #333;
+  padding: 10px 12px;
+  border-radius: 6px;
   word-wrap: break-word;
   line-height: 1.4;
 }
@@ -71,3 +82,4 @@
   flex-shrink: 0;
   align-self: center;
 }
+

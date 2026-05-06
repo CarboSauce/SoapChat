@@ -6,7 +6,7 @@ export const getApiUrl = (): string => {
     return import.meta.env.VITE_GRAPHQL_ENDPOINT
   }
 
-  return 'http://localhost:4000/graphql'
+  return '/graphql'
 }
 
 export const setApiUrl = (url: string): void => {
